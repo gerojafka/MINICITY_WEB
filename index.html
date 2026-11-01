@@ -39,12 +39,12 @@ async def custom_site():
     # unpack filesystem from compressed archive into work dir
     if platform.window.location.host.find('.itch.zone')>0:
         import zipfile
-        async with platform.fopen("web_minicity.apk?v=4.7.83", "rb") as archive:
+        async with platform.fopen("web_minicity.apk?v=4.7.84", "rb") as archive:
             with zipfile.ZipFile(archive) as zip_ref:
                 zip_ref.extractall(appdir.as_posix())
     else:
         import tarfile
-        async with platform.fopen("web_minicity.tar.gz?v=4.7.83", "rb") as archive:
+        async with platform.fopen("web_minicity.tar.gz?v=4.7.84", "rb") as archive:
             tar = tarfile.open(fileobj=archive, mode="r:gz")
             tar.extractall(path=appdir.as_posix(), filter='tar')
             tar.close()
@@ -178,7 +178,7 @@ function show_infobox() {
 
 </script>
 
-    <title>MINICITY 4.7.83</title>
+    <title>MINICITY 4.7.84</title>
     <meta charset="UTF-8">
     <script>
     // Sur "localhost", pygbag croit etre en mode developpeur et cherche pygame sur
@@ -505,7 +505,7 @@ frameborder="1"
     updateTouchButtons();
     setInterval(updateTouchButtons, 150);
 
-    document.getElementById('fullscreen').addEventListener('click', async () => {
+    async function basculerPleinEcran() {
         // Safari sur iPad n'accepte que les fonctions prefixees webkit.
         const el = document.documentElement;
         const actif = document.fullscreenElement || document.webkitFullscreenElement;
@@ -521,7 +521,13 @@ frameborder="1"
             try { if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); } catch (__) {}
         }
         canvas.focus();
-    });
+    }
+    document.getElementById('fullscreen').addEventListener('click', basculerPleinEcran);
+    // F11 : le navigateur ferait son propre plein ecran sans que le jeu s'adapte ;
+    // on le remplace par le plein ecran de la page.
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'F11') { e.preventDefault(); e.stopImmediatePropagation(); basculerPleinEcran(); }
+    }, true);
 
     document.getElementById('save-city').addEventListener('click', async () => {
         const current = localStorage.getItem('minicity:derniere') || 'ville';
