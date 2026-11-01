@@ -1,4 +1,4 @@
-const CACHE = 'minicity-web-4.7.79-ponts3d';
+const CACHE = 'minicity-web-4.7.81-ponts3d';
 const LOCAL = ['./', './index.html', './web_minicity.apk', './web_minicity.tar.gz', './favicon.png', './manifest.webmanifest'];
 
 self.addEventListener('install', event => {
@@ -12,7 +12,13 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  const path = new URL(event.request.url).pathname;
+  const url = new URL(event.request.url);
+  const path = url.pathname;
+  // Liste et fichiers des villes en ligne : toujours le reseau (jamais une copie ancienne).
+  if (url.hostname === 'api.github.com' || path.includes('/villes/')) {
+    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+    return;
+  }
   if (path.endsWith('/') || path.endsWith('/index.html') || path.endsWith('/web_minicity.apk') || path.endsWith('/web_minicity.tar.gz')) {
     event.respondWith(fetch(event.request).then(response => {
       const copy = response.clone();
