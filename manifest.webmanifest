@@ -1,0 +1,14 @@
+{
+  "name": "MINICITY",
+  "short_name": "MINICITY",
+  "description": "Simulation de ville isometrique",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#151a24",
+  "theme_color": "#202633",
+  "icons": [
+    {"src": "favicon.png", "sizes": "96x96", "type": "image/png"}
+  ]
+}
