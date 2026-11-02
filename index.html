@@ -39,12 +39,12 @@ async def custom_site():
     # unpack filesystem from compressed archive into work dir
     if platform.window.location.host.find('.itch.zone')>0:
         import zipfile
-        async with platform.fopen("web_minicity.apk?v=4.7.85", "rb") as archive:
+        async with platform.fopen("web_minicity.apk?v=4.7.86", "rb") as archive:
             with zipfile.ZipFile(archive) as zip_ref:
                 zip_ref.extractall(appdir.as_posix())
     else:
         import tarfile
-        async with platform.fopen("web_minicity.tar.gz?v=4.7.85", "rb") as archive:
+        async with platform.fopen("web_minicity.tar.gz?v=4.7.86", "rb") as archive:
             tar = tarfile.open(fileobj=archive, mode="r:gz")
             tar.extractall(path=appdir.as_posix(), filter='tar')
             tar.close()
@@ -178,7 +178,7 @@ function show_infobox() {
 
 </script>
 
-    <title>MINICITY 4.7.85</title>
+    <title>MINICITY 4.7.86</title>
     <meta charset="UTF-8">
     <script>
     // Sur "localhost", pygbag croit etre en mode developpeur et cherche pygame sur
@@ -375,28 +375,56 @@ height="1px"
     oncontextmenu="event.preventDefault()" tabindex=1>
     </canvas>
 
-    <nav id="touchbar" aria-label="Commandes tactiles MINICITY">
-        <button type="button" data-key="0" title="Curseur">CURS.</button>
-        <button type="button" data-key="x" title="Gomme">EFF.</button>
-        <button type="button" data-key="r" title="Rotation de 90 degres">ROT.</button>
-        <button type="button" data-key="t" title="Choisir l'autre coude du trace">COUDE</button>
-        <button type="button" data-key="Escape" title="Terminer ou annuler le trace">FIN</button>
-        <button type="button" data-key="z" data-ctrl="1" title="Annuler">ANN.</button>
-        <button type="button" data-key=" " title="Pause">PAUSE</button>
-        <button type="button" data-key="v" title="Vue d'ensemble">VUE</button>
-        <button type="button" id="save-city" title="Sauvegarder sous un nom">SAUV.</button>
-        <button type="button" id="export-city" title="Exporter la ville">EXP.</button>
-        <label for="import-city" title="Importer une ville">IMP.</label>
+    <script>
+    // Langue de l'interface (francais / anglais) : la meme que celle choisie dans le jeu.
+    window.mcLang = "fr";
+    function mcT(fr, en) { return window.mcLang === "en" ? en : fr; }
+    window.mcSetLang = function (lang) {
+        window.mcLang = (lang === "en") ? "en" : "fr";
+        document.documentElement.lang = window.mcLang;
+        document.querySelectorAll("[data-en]").forEach(function (e) { e.textContent = window.mcLang === "en" ? e.getAttribute("data-en") : e.getAttribute("data-fr"); });
+        document.querySelectorAll("[data-title-en]").forEach(function (e) {
+            if (!e.hasAttribute("data-title-fr")) e.setAttribute("data-title-fr", e.getAttribute("title") || "");
+            e.setAttribute("title", window.mcLang === "en" ? e.getAttribute("data-title-en") : e.getAttribute("data-title-fr"));
+        });
+        var nav = document.getElementById("touchbar");
+        if (nav) {
+            if (!nav.hasAttribute("data-aria-fr")) nav.setAttribute("data-aria-fr", nav.getAttribute("aria-label") || "");
+            nav.setAttribute("aria-label", window.mcLang === "en" ? nav.getAttribute("data-aria-en") : nav.getAttribute("data-aria-fr"));
+        }
+        var info = document.getElementById("villes-info");
+        if (info && /^(Chargement|Loading)/.test(info.textContent)) info.textContent = mcT("Chargement de la liste...", "Loading the list...");
+    };
+    (function () {
+        var l = "";
+        try { l = localStorage.getItem("minicity_lang") || ""; } catch (_) {}
+        if (!l) l = (navigator.language || "fr").toLowerCase().indexOf("fr") === 0 ? "fr" : "en";
+        window.addEventListener("DOMContentLoaded", function () { window.mcSetLang(l); });
+        window.mcLang = l;
+    })();
+</script>
+<nav id="touchbar" aria-label="Commandes tactiles MINICITY" data-aria-en="MINICITY touch controls">
+        <button type="button" data-key="0" title="Curseur" data-title-en="Cursor" data-fr="CURS." data-en="CURSOR">CURS.</button>
+        <button type="button" data-key="x" title="Gomme" data-title-en="Eraser" data-fr="EFF." data-en="ERASE">EFF.</button>
+        <button type="button" data-key="r" title="Rotation de 90 degres" data-title-en="Rotate 90 degrees" data-fr="ROT." data-en="ROT.">ROT.</button>
+        <button type="button" data-key="t" title="Choisir l'autre coude du trace" data-title-en="Pick the other bend of the route" data-fr="COUDE" data-en="BEND">COUDE</button>
+        <button type="button" data-key="Escape" title="Terminer ou annuler le trace" data-title-en="Finish or cancel the route" data-fr="FIN" data-en="END">FIN</button>
+        <button type="button" data-key="z" data-ctrl="1" title="Annuler" data-title-en="Undo" data-fr="ANN." data-en="UNDO">ANN.</button>
+        <button type="button" data-key=" " title="Pause" data-title-en="Pause" data-fr="PAUSE" data-en="PAUSE">PAUSE</button>
+        <button type="button" data-key="v" title="Vue d'ensemble" data-title-en="Overview" data-fr="VUE" data-en="VIEW">VUE</button>
+        <button type="button" id="save-city" title="Sauvegarder sous un nom" data-title-en="Save under a name" data-fr="SAUV." data-en="SAVE">SAUV.</button>
+        <button type="button" id="export-city" title="Exporter la ville" data-title-en="Export the city" data-fr="EXP." data-en="EXPORT">EXP.</button>
+        <label for="import-city" title="Importer une ville" data-title-en="Import a city" data-fr="IMP." data-en="IMPORT">IMP.</label>
         <input id="import-city" type="file" accept="application/json,.json"/>
-        <button type="button" id="villes-ouvrir" title="Villes du site">VILLES</button>
-        <button type="button" id="fullscreen" title="Plein ecran">PLEIN</button>
+        <button type="button" id="villes-ouvrir" title="Villes du site" data-title-en="Cities on the site" data-fr="VILLES" data-en="CITIES">VILLES</button>
+        <button type="button" id="fullscreen" title="Plein ecran" data-title-en="Fullscreen" data-fr="PLEIN" data-en="FULL">PLEIN</button>
     </nav>
     <div id="villes-panel" role="dialog" aria-label="Villes du site">
         <div id="villes-boite">
-            <h2>Villes en ligne</h2>
+            <h2 data-fr="Villes en ligne" data-en="Cities online">Villes en ligne</h2>
             <p id="villes-info">Chargement de la liste...</p>
             <div id="villes-liste"></div>
-            <button type="button" id="villes-fermer">Fermer</button>
+            <button type="button" id="villes-fermer" data-fr="Fermer" data-en="Close">Fermer</button>
         </div>
     </div>
 
@@ -543,7 +571,7 @@ frameborder="1"
     document.getElementById('export-city').addEventListener('click', () => {
         const name = localStorage.getItem('minicity:derniere') || 'ville';
         const data = localStorage.getItem('minicity:ville:'+name);
-        if (!data) { alert('Sauvegardez d abord la ville dans MINICITY.'); return; }
+        if (!data) { alert(mcT('Sauvegardez d abord la ville dans MINICITY.','Save the city in MINICITY first.')); return; }
         const url = URL.createObjectURL(new Blob([data], {type:'application/json'}));
         const a = document.createElement('a'); a.href=url; a.download=name+'.json'; a.click();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -560,7 +588,7 @@ frameborder="1"
             localStorage.setItem('minicity:ville:'+name, JSON.stringify(data));
             localStorage.setItem('minicity:derniere', name);
             location.reload();
-        } catch (_) { alert('Ce fichier ne contient pas une ville MINICITY valide.'); }
+        } catch (_) { alert(mcT('Ce fichier ne contient pas une ville MINICITY valide.','This file does not contain a valid MINICITY city.')); }
     });
 
     // --- Villes en ligne : fichiers .json du dossier villes/ du site -------------
@@ -593,12 +621,12 @@ frameborder="1"
     document.getElementById('villes-fermer').addEventListener('click', () => { villesPanel.classList.remove('ouvert'); canvas.focus(); });
     document.getElementById('villes-ouvrir').addEventListener('click', async () => {
         const info = document.getElementById('villes-info'), liste = document.getElementById('villes-liste');
-        info.textContent = 'Chargement de la liste...'; liste.innerHTML = '';
+        info.textContent = mcT('Chargement de la liste...','Loading the list...'); liste.innerHTML = '';
         villesPanel.classList.add('ouvert');
         let villes = [];
         try { villes = await listeVillesEnLigne(); } catch (_) {}
-        if (!villes.length) { info.textContent = 'Aucune ville trouvee dans le dossier villes/ du site.'; return; }
-        info.textContent = 'Touchez une ville pour l\'ouvrir. La ville en cours non sauvegardee sera perdue.';
+        if (!villes.length) { info.textContent = mcT('Aucune ville trouvee dans le dossier villes/ du site.','No city found in the site\'s villes/ folder.'); return; }
+        info.textContent = mcT('Touchez une ville pour l\'ouvrir. La ville en cours non sauvegardee sera perdue.','Tap a city to open it. The current city will be lost if not saved.');
         for (const v of villes.sort((a,b) => a.nom.localeCompare(b.nom))) {
             const b = document.createElement('button'); b.type = 'button'; b.textContent = v.nom.replace(/_/g,' ');
             b.addEventListener('click', async () => {
@@ -610,7 +638,7 @@ frameborder="1"
                     localStorage.setItem('minicity:ville:'+name, JSON.stringify(data));
                     localStorage.setItem('minicity:derniere', name);
                     location.reload();
-                } catch (_) { alert('Impossible d\'ouvrir cette ville.'); }
+                } catch (_) { alert(mcT('Impossible d\'ouvrir cette ville.','Unable to open this city.')); }
             });
             liste.appendChild(b);
         }

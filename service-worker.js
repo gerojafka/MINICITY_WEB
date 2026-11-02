@@ -1,4 +1,4 @@
-const CACHE = 'minicity-web-4.7.85-ponts3d';
+const CACHE = 'minicity-web-4.7.86-ponts3d';
 const LOCAL = ['./', './index.html', './web_minicity.apk', './web_minicity.tar.gz', './favicon.png', './manifest.webmanifest'];
 
 self.addEventListener('install', event => {
